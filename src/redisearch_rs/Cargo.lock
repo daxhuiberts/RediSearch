@@ -1445,6 +1445,7 @@ dependencies = [
  "result_processor_ffi",
  "triemap_ffi",
  "types_ffi",
+ "value_ffi",
  "varint_ffi",
 ]
 
