@@ -134,30 +134,6 @@ typedef struct RSValue {
 ///////////////////////////////////////////////////////////////
 
 /**
- * Creates a stack-allocated undefined RSValue.
- * The returned value is not allocated on the heap and should not be freed.
- * @return A stack-allocated RSValue of type RSValueType_Undef
- */
-RSValue RSValue_Undefined();
-
-/**
- * Creates a stack-allocated RSValue containing a number.
- * The returned value is not allocated on the heap and should not be freed.
- * @param n The numeric value to wrap
- * @return A stack-allocated RSValue of type RSValueType_Number
- */
-RSValue RSValue_Number(double n);
-
-/**
- * Creates a stack-allocated RSValue containing a malloc'd string.
- * The returned value itself is not heap-allocated, but takes ownership of the string.
- * @param str The malloc'd string to wrap (ownership is transferred)
- * @param len The length of the string
- * @return A stack-allocated RSValue of type RSValue_String with RSString_Malloc subtype
- */
-RSValue RSValue_String(char *str, uint32_t len);
-
-/**
  * Creates a heap-allocated Undefined RSValue.
  * @return A pointer to a heap-allocated RSValue
  */
