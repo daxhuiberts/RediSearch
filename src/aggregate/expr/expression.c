@@ -342,6 +342,9 @@ EvalCtx *EvalCtx_Create() {
   r->ee.srcrow = &r->row;
   r->ee.err = &r->status;
 
+  // DAX: Deferencing `RSValue_NullStatic` gives an `Arc<_>` and not a `RsValue` which it expects.
+  // DAX: This is another example of what I tried to explain with the fact that a `&RsValue` and a `RsValuePr`
+  // DAX: (and thus `RsValue` and `*RsValuePtr`) are not compatible in how the C code needs to use it.
   r->res = *RSValue_NullStatic();
 
   r->_expr = NULL;
@@ -447,7 +450,8 @@ static int rpevalCommon(RPEvaluator *pc, SearchResult *r) {
 
   if (!pc->val) {
     // DAX: This creates a heap-allocated Undefined RSValue, which in the rust version will be a null pointer.
-    // DAX: Not sure if that is the right approach, as an undefined value should be easily converted to another type, right?
+    // DAX: Not sure if that is the right approach, as an undefined value should be easily converted to another type,
+    // DAX: and that can't happen when it doesn't point to anything, right?
     // DAX: Anyways, RSValue_NewUndefined will return a RsValuePtr, which is a renamed OpaqueDynRsValuePtr,
     // DAX: which actually is a DynRsValuePtr.
     pc->val = RSValue_NewUndefined();
