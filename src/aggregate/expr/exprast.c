@@ -28,6 +28,7 @@ RSArgList *RSArgList_Append(RSArgList *l, RSExpr *e) {
 static RSExpr *newExpr(RSExprType t) {
   RSExpr *e = rm_calloc(1, sizeof(*e));
   e->t = t;
+  e->literal = RSValue_NewUndefined();
   return e;
 }
 
@@ -55,20 +56,19 @@ RSExpr *RS_NewStringLiteral(const char *str, size_t len) {
   RSExpr *e = newExpr(RSExpr_Literal);
   uint32_t newLen;
   char* cleaned_str = unescapeStringDup(str,len, &newLen);
-  e->literal = RSValue_String(cleaned_str, newLen);
+  RSValue_SetString(e->literal, cleaned_str, newLen);
   return e;
 }
 
 RSExpr *RS_NewNullLiteral() {
   RSExpr *e = newExpr(RSExpr_Literal);
-  RSValue_MakeReference(&e->literal, RSValue_NullStatic());
+  RSValue_MakeReference(e->literal, RSValue_NullStatic());
   return e;
 }
 
 RSExpr *RS_NewNumberLiteral(double n) {
   RSExpr *e = newExpr(RSExpr_Literal);
-
-  e->literal = RSValue_Number(n);
+  RSValue_SetNumber(e->literal, n);
   return e;
 }
 
@@ -126,7 +126,7 @@ void RSExpr_Free(RSExpr *e) {
   if (!e) return;
   switch (e->t) {
     case RSExpr_Literal:
-      RSValue_Clear(&e->literal);
+      RSValue_DecrRef(e->literal);
       break;
     case RSExpr_Function:
       RSArgList_Free(e->func.args);
@@ -181,7 +181,7 @@ sds RSExpr_DumpSds(const RSExpr *e, sds s, bool obfuscate) {
   }
   switch (e->t) {
     case RSExpr_Literal:
-      s = RSValue_DumpSds(&e->literal, s, obfuscate);
+      s = RSValue_DumpSds(e->literal, s, obfuscate);
       break;
     case RSExpr_Function:
       s = sdscatfmt(s, "%s(", e->func.name);
