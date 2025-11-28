@@ -45,13 +45,13 @@ typedef struct RsValueInternal RsValueInternal;
  */
 typedef uint8_t Size_16[16];
 
-typedef struct ALIGNED(8) RsValue {
-  Size_16 _0;
-} RsValue;
-
 typedef struct ALIGNED(8) RsValuePtr {
   Size_16 _0;
 } RsValuePtr;
+
+typedef struct ALIGNED(8) RsValue {
+  Size_16 _0;
+} RsValue;
 
 /**
  * A heap-allocated and refcounted RedisSearch dynamic value.
@@ -136,6 +136,10 @@ typedef struct RsValueCollection_SharedRsValue RsValueArray;
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus
+
+struct RsValuePtr RsValue_None(void);
+
+bool RsValue_IsNone(struct RsValuePtr v);
 
 /**
  * Creates a stack-allocated, undefined `RsValue`.

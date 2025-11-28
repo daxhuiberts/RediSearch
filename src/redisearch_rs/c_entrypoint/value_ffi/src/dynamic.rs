@@ -75,6 +75,7 @@ macro_rules! apply_with_dyn_ptr {
                     std::mem::forget(v);
                     res
                 }
+                DynRsValuePtr::None => panic!("What to do?"),
             }
         }
 
@@ -176,6 +177,7 @@ impl Value for DynRsValue {
 pub enum DynRsValuePtr {
     Exclusive(*const RsValue),
     Shared(*const RsValueInternal),
+    None, // Should only be used as a sentinel value for NULL pointers.
 }
 
 impl DynRsValuePtr {

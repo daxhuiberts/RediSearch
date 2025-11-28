@@ -33,6 +33,20 @@ pub mod dynamic;
 pub mod shared;
 pub mod value_type;
 
+#[unsafe(no_mangle)]
+pub extern "C" fn RsValue_None() -> OpaqueDynRsValuePtr {
+    DynRsValuePtr::None.into_opaque()
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn RsValue_IsNone(v: OpaqueDynRsValuePtr) -> bool {
+    let v = unsafe { DynRsValuePtr::from_opaque(v) };
+    match v {
+        DynRsValuePtr::None => true,
+        _ => false,
+    }
+}
+
 /// Creates a stack-allocated, undefined `RsValue`.
 ///
 /// @returns a stack-allocated `RsValue` of type `RsValueType_Undef`
@@ -82,6 +96,8 @@ pub unsafe extern "C" fn RsValue_String(
 /// DO NOT free or modify this value.
 ///
 /// @return A pointer to a static `RsValue` of type `RsValueType_Null`
+// DAX: All RsValue constructors return a RsValue, but this one returns a pointer.
+// DAX: That is needed, because it returns a pointer to the Null Static value, but still.
 #[unsafe(no_mangle)]
 pub extern "C" fn RsValue_NullStatic() -> OpaqueDynRsValuePtr {
     static RSVALUE_NULL: DynRsValue = DynRsValue::null_const();
@@ -673,6 +689,7 @@ pub unsafe extern "C" fn RsValue_IncrRef(v: OpaqueDynRsValuePtr) {
             std::mem::forget(v); // Don't decrement refcount
         }
         DynRsValuePtr::Exclusive(_) => (), // do nothing
+        DynRsValuePtr::None => panic!("What to do?"),
     }
 }
 
@@ -691,6 +708,7 @@ pub unsafe extern "C" fn RsValue_DecrRef(v: OpaqueDynRsValuePtr) {
         DynRsValuePtr::Exclusive(v) => drop(unsafe { v.read() }),
         // Safety: caller must ensure (1)
         DynRsValuePtr::Shared(v) => drop(unsafe { SharedRsValue::from_raw(v) }),
+        DynRsValuePtr::None => panic!("What to do?"),
     }
 }
 
@@ -783,6 +801,7 @@ pub unsafe extern "C" fn RsValue_MakeOwnReference(
             // Safety: caller must ensure (3) and (4)
             unsafe { SharedRsValue::from_raw(v) }
         }
+        DynRsValuePtr::None => panic!("What to do?"),
     };
 
     dst.to_reference(src);
@@ -826,6 +845,7 @@ pub unsafe extern "C" fn RsValue_Replace(
             *dst = v.clone().into();
             mem::forget(v);
         }
+        DynRsValuePtr::None => panic!("What to do?"),
     }
 }
 
