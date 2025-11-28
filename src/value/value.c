@@ -307,6 +307,12 @@ RSValue *RSValue_NewTrio(RSValue *val, RSValue *otherval, RSValue *other2val) {
   return trio;
 }
 
+RSValue *RSValue_NewReference(RSValue *src) {
+  RSValue *ref = RSValue_NewWithType(RSValueType_Reference);
+  ref->_ref = RSValue_IncrRef(src);
+  return ref;
+}
+
 ///////////////////////////////////////////////////////////////
 // Getters and Setters (grouped by field)
 ///////////////////////////////////////////////////////////////
