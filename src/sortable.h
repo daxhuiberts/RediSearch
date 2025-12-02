@@ -34,7 +34,7 @@ extern "C" {
 #pragma pack(2)
 typedef struct RSSortingVector {
   uint16_t len;      // Should be able to hold RS_SORTABLES_MAX-1 (requires 10 bits today)
-  RSValue *values[];
+  RsValue values[];
 } RSSortingVector;
 #pragma pack()
 
@@ -45,11 +45,17 @@ void RSSortingVector_PutNum(RSSortingVector *vec, size_t idx, double num);
 void RSSortingVector_PutStr(RSSortingVector* vec, size_t idx, const char* str);
 
 /* Put another RSValue instance in the sorting vector */
-void RSSortingVector_PutRSVal(RSSortingVector* vec, size_t idx, RSValue* val);
+void RSSortingVector_PutRSVal(RSSortingVector* vec, size_t idx, RsValuePtr val);
 
 /* Returns the value for a given index. Does not increment the refcount */
-static inline RSValue *RSSortingVector_Get(const RSSortingVector *v, size_t index) {
-  return v->len > index ? v->values[index] : NULL;
+static inline RsValue RSSortingVector_Get(const RSSortingVector *v, size_t index) {
+  // return v->len > index ? v->values[index] : NULL;
+  if (v->len > index) {
+      return v->values[index];
+  } else {
+      // DAX: TODO: Should return NULL or an error value
+      return RsValue_NewNumber(0.0);
+  }
 }
 
 static inline size_t RSSortingVector_Length(const RSSortingVector* vec) {

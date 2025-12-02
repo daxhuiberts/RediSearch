@@ -79,7 +79,7 @@ void RSSortingVector_PutStr(RSSortingVector* vec, size_t idx, const char* str) {
   vec->values[idx] = RSValue_NewString(str, strlen(str));
 }
 
-void RSSortingVector_PutRSVal(RSSortingVector* vec, size_t idx, RSValue* val) {
+void RSSortingVector_PutRSVal(RSSortingVector* vec, size_t idx, RsValuePtr val) {
   RSPUT_SANITY_CHECK
   vec->values[idx] = val;
 }

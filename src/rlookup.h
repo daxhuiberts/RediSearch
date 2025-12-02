@@ -13,6 +13,7 @@
 
 #include <spec.h>
 #include <search_ctx.h>
+#include "redisearch_rs/headers/value.h"
 #include "value.h"
 #include "sortable.h"
 #include "util/arr.h"
@@ -115,7 +116,7 @@ typedef struct {
   const RSSortingVector *sv;
 
   /** Dynamic values obtained from prior processing */
-  RSValue **dyn;
+  RsValuePtr *dyn;
 
   /**
    * How many values actually exist in dyn. Note that this
@@ -256,14 +257,14 @@ size_t RLookup_GetLength(const RLookup *lookup, const RLookupRow *r, int *skipFi
  *
  * The value written will have its refcount incremented
  */
-void RLookup_WriteKey(const RLookupKey *key, RLookupRow *row, RSValue *value);
+void RLookup_WriteKey(const RLookupKey *key, RLookupRow *row, RsValuePtr value);
 
 /**
  * Exactly like RLookup_WriteKey, but does not increment the refcount, allowing
  * idioms such as RLookup_WriteKey(..., RSValue_NewNumber(10)); which would otherwise cause
  * a leak.
  */
-void RLookup_WriteOwnKey(const RLookupKey *key, RLookupRow *row, RSValue *value);
+void RLookup_WriteOwnKey(const RLookupKey *key, RLookupRow *row, RsValuePtr value);
 
 /**
  * Move data from the source row to the destination row. The source row is cleared.
@@ -282,12 +283,12 @@ void RLookupRow_Move(const RLookup *lk, RLookupRow *src, RLookupRow *dst);
  *
  * The reference count of the value will be incremented.
  */
-void RLookup_WriteKeyByName(RLookup *lookup, const char *name, size_t len, RLookupRow *row, RSValue *value);
+void RLookup_WriteKeyByName(RLookup *lookup, const char *name, size_t len, RLookupRow *row, RsValuePtr value);
 
 /**
  * Like WriteKeyByName, but consumes a refcount
  */
-void RLookup_WriteOwnKeyByName(RLookup *lookup, const char *name, size_t len, RLookupRow *row, RSValue *value);
+void RLookup_WriteOwnKeyByName(RLookup *lookup, const char *name, size_t len, RLookupRow *row, RsValuePtr value);
 
 /** Get a value from the row, provided the key.
  *
@@ -299,19 +300,20 @@ void RLookup_WriteOwnKeyByName(RLookup *lookup, const char *name, size_t len, RL
  * @param row the row data which contains the value
  * @return the value if found, NULL otherwise.
  */
-static inline RSValue *RLookup_GetItem(const RLookupKey *key, const RLookupRow *row) {
+static inline RsValuePtr RLookup_GetItem(const RLookupKey *key, const RLookupRow *row) {
 
-  RSValue *ret = NULL;
+  RsValuePtr ret = RsValue_None();
   if (row->dyn && array_len(row->dyn) > key->dstidx) {
     ret = row->dyn[key->dstidx];
   }
-  if (!ret) {
+  if (RsValue_IsNone(ret)) {
     if (key->flags & RLOOKUP_F_SVSRC) {
       const RSSortingVector* sv = RLookupRow_GetSortingVector(row);
       if (sv && RSSortingVector_Length(sv) > key->svidx) {
-        ret = RSSortingVector_Get(sv, key->svidx);
-        if (ret != NULL && ret == RSValue_NullStatic()) {
-          ret = NULL;
+        // DAX: TODO: Fix this line below, because it still depends on `ffi::RSValue`
+        // ret = RSSortingVector_Get(sv, key->svidx);
+        if (!RsValue_IsNone(ret) && RsValue_IsNull(ret)) {
+          ret = RsValue_None();
         }
       }
     }
@@ -411,7 +413,7 @@ void RLookupKey_Free(RLookupKey *k);
  */
 int RLookup_LoadRuleFields(RedisModuleCtx *ctx, RLookup *it, RLookupRow *dst, IndexSpec *sp, const char *keyptr);
 
-int jsonIterToValue(RedisModuleCtx *ctx, JSONResultsIterator iter, unsigned int apiVersion, RSValue **rsv);
+int jsonIterToValue(RedisModuleCtx *ctx, JSONResultsIterator iter, unsigned int apiVersion, RsValuePtr *rsv);
 
 
 /**
@@ -449,10 +451,10 @@ int RLookup_JSON_GetAll(RLookup *it, RLookupRow *dst, RLookupLoadOptions *option
 int loadIndividualKeys(RLookup *it, RLookupRow *dst, RLookupLoadOptions *options);
 
 // exposed to be called from Rust, was inline before that.
-RSValue *hvalToValue(const RedisModuleString *src, RLookupCoerceType type);
+RsValuePtr hvalToValue(const RedisModuleString *src, RLookupCoerceType type);
 
 // exposed to be called from Rust, was inline before that.
-RSValue *replyElemToValue(RedisModuleCallReply *rep, RLookupCoerceType otype);
+RsValuePtr replyElemToValue(RedisModuleCallReply *rep, RLookupCoerceType otype);
 
 // exposed to be called from Rust, is part of a dependency and was inline before that.
 size_t sdslen__(const char* s);

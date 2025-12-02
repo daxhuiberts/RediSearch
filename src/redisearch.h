@@ -17,6 +17,7 @@
 #include "util/dllist.h"
 #include "stemmer.h"
 #include "types_rs.h"
+#include "value.h"
 
 typedef uint64_t t_docId;
 typedef uint64_t t_offset;
@@ -263,13 +264,12 @@ typedef struct {
 
 // Forward declaration of needed structs
 struct RLookupKey;
-struct RSValue;
 
 // Holds a key-value pair of an `RSValue` and the `RLookupKey` to add it into.
 // A result processor will write the value into the key if the result passed the AST.
 typedef struct RSYieldableMetric{
   struct RLookupKey *key;
-  struct RSValue *value;
+  RsValuePtr value;
 } RSYieldableMetric;
 
 #pragma pack()

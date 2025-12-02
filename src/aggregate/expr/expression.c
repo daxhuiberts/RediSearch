@@ -22,10 +22,11 @@ static void setReferenceValue(RSValue *dst, RSValue *src) {
 extern int func_exists(ExprEval *ctx, RSValue *argv, size_t argc, RSValue *result);
 extern int func_case(ExprEval *ctx, RSValue *argv, size_t argc, RSValue *result);
 
-static int evalFuncCase(ExprEval *eval, const RSFunctionExpr *f, RSValue *result) {
+static int evalFuncCase(ExprEval *eval, const RSFunctionExpr *f, RsValuePtr result) {
   // Evaluate the condition
-  RSValue condVal = RSValue_Undefined();
-  int rc = evalInternal(eval, f->args->args[0], &condVal);
+  RsValue condVal = RSValue_Undefined();
+  RsValuePtr condValPtr = RsValue_DynPtr(&condVal);
+  int rc = evalInternal(eval, f->args->args[0], condValPtr);
   if (rc != EXPR_EVAL_OK) {
     RSValue_Clear(&condVal);
     return rc;
@@ -80,14 +81,15 @@ cleanup:
   return rc;
 }
 
-static int evalOp(ExprEval *eval, const RSExprOp *op, RSValue *result) {
-  RSValue l = RSValue_Undefined(), r = RSValue_Undefined();
+static int evalOp(ExprEval *eval, const RSExprOp *op, RsValuePtr result) {
+  RsValue l = RSValue_Undefined(), r = RSValue_Undefined();
+  RsValuePtr lp = RsValue_DynPtr(&l), rp = RsValue_DynPtr(&r);
   int rc = EXPR_EVAL_ERR;
 
-  if (evalInternal(eval, op->left, &l) != EXPR_EVAL_OK) {
+  if (evalInternal(eval, op->left, lp) != EXPR_EVAL_OK) {
     goto cleanup;
   }
-  if (evalInternal(eval, op->right, &r) != EXPR_EVAL_OK) {
+  if (evalInternal(eval, op->right, rp) != EXPR_EVAL_OK) {
     goto cleanup;
   }
 
@@ -122,6 +124,7 @@ static int evalOp(ExprEval *eval, const RSExprOp *op, RSValue *result) {
     default: RS_LOG_ASSERT_FMT(0, "Invalid operator %c", op->op);
   }
 
+  // DAX: `RSValue_IntoNumber` accepts a pointer to a `RSValue` struct, but this function will likely be called with a RsValuePtr.
   RSValue_IntoNumber(result, res);
   rc = EXPR_EVAL_OK;
 

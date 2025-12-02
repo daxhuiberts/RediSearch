@@ -80,7 +80,7 @@ typedef struct DocumentField {
       size_t arrayLen; // for multiVal TODO: use arr.h
     };
   };
-  RSValue *multisv; // sortable value for multi value (pre-calculated during ingestion)
+  RsValuePtr multisv; // sortable value for multi value (pre-calculated during ingestion)
   FieldVarType unionType;
   FieldType indexAs;
 } DocumentField;

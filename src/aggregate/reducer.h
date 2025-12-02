@@ -77,7 +77,7 @@ typedef struct Reducer {
    * Called when Add() has been invoked for the last time. This is used to
    * populate the result of the reduce function.
    */
-  RSValue *(*Finalize)(struct Reducer *parent, void *instance);
+  RSValuePtr (*Finalize)(struct Reducer *parent, void *instance);
 
   /** Frees the object created by NewInstance() */
   void (*FreeInstance)(struct Reducer *parent, void *instance);

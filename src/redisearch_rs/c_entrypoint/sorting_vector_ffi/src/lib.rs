@@ -20,6 +20,7 @@ use value::{RSValueFFI, RSValueTrait as _};
 pub const RS_SORTABLES_MAX: usize = 1024;
 
 pub struct RSSortingVector {
+    // DAX: TODO: This needs to depend on RsValuePtr
     inner: sorting_vector::RSSortingVector<RSValueFFI>,
 }
 
@@ -41,6 +42,7 @@ impl DerefMut for RSSortingVector {
 ///
 /// Safety:
 /// 1. The pointer must be a valid pointer to an [`RSSortingVector`] created by [`RSSortingVector_New`].
+// DAX: TODO: This now needs to return a (ffi::)RsValuePtr.
 #[unsafe(no_mangle)]
 unsafe extern "C" fn RSSortingVector_Get(
     vec: *const RSSortingVector,
