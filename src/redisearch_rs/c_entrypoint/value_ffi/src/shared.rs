@@ -26,6 +26,12 @@ use crate::{
     },
 };
 
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn RsValue_NewUndefined() -> OpaqueDynRsValue {
+    let v = SharedRsValue::undefined();
+    DynRsValue::from(v).into_opaque()
+}
+
 /// Creates a heap-allocated `RsValue` wrapping a string.
 /// Doesn't duplicate the string. Use strdup if the value needs to be detached.
 ///
@@ -416,6 +422,7 @@ pub extern "C" fn RsValue_NewTrio(
 ///
 /// @param v The value to convert (ownership is transferred)
 /// @return A pointer to a heap-allocated SharedRsValue
+// DAX: SharedRsValue is never used in C, right?
 #[unsafe(no_mangle)]
 pub extern "C" fn RsValue_ToShared(v: OpaqueDynRsValuePtr) -> SharedRsValue {
     // Safety: caller must ensure (1)

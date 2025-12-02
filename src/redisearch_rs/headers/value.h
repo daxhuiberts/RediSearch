@@ -633,6 +633,8 @@ RsValueArray RsValueArray_AllocUninit(uint32_t cap);
  */
 void RsValueArray_SetEntry(RsValueArray *arr, size_t i, SharedRsValue value);
 
+struct RsValue RsValue_NewUndefined(void);
+
 /**
  * Creates a heap-allocated `RsValue` wrapping a string.
  * Doesn't duplicate the string. Use strdup if the value needs to be detached.
