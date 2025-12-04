@@ -205,12 +205,10 @@ static size_t serializeResult(AREQ *req, RedisModule_Reply *reply, const SearchR
         // For duo value, we use the left value here (not the right value)
         v = RSValue_Trio_GetLeft(v);
       }
-      RSValue rsv;
       if (rlk && (rlk->flags & RLOOKUP_T_NUMERIC) && v && !RSValue_IsNumber(v) && !RSValue_IsNull(v)) {
         double d;
         RSValue_ToNumber(v, &d);
-        RSValue_SetNumber(&rsv, d);
-        v = &rsv;
+        v = RSValue_NewNumber(d);
       }
       if (need_map) {
         RedisModule_Reply_CString(reply, req->requiredFields[currentField]); // key name
