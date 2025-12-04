@@ -436,11 +436,6 @@ RSValue *RSValue_ArrayItem(const RSValue *arr, uint32_t index);
 
 uint32_t RSValue_ArrayLen(const RSValue *arr);
 
-/** Accesses the array element at a given position as an l-value */
-#define RSVALUE_ARRELEM(vv, pos) ((vv)->_arrval.vals[pos])
-/** Accesses the array length as an lvalue */
-#define RSVALUE_ARRLEN(vv) ((vv)->_arrval.len)
-
 // Map getters/setters
 /**
  * Get the number of key-value pairs in a map RSValue.
