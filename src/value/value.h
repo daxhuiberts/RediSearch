@@ -547,6 +547,8 @@ size_t RSValue_NumToString(const RSValue *v, char *buf, size_t buflen);
 // obfuscate boolean The returned string must be freed by the caller using sdsfree
 sds RSValue_DumpSds(const RSValue *v, sds s, bool obfuscate);
 
+uint16_t RSValue_GetRefcount(const RSValue *v);
+
 #ifdef __cplusplus
 }
 #endif

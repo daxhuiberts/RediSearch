@@ -970,6 +970,10 @@ sds RSValue_DumpSds(const RSValue *v, sds s, bool obfuscate) {
   }
 }
 
+uint16_t RSValue_GetRefcount(const RSValue *v) {
+    return v->_refcount;
+}
+
 ///////////////////////////////////////////////////////////////
 // Extra functions not in header
 ///////////////////////////////////////////////////////////////
